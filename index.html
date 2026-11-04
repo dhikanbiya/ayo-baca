@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google's TTS endpoint returns 404 when a Referer header is sent, so send none -->
+    <meta name="referrer" content="no-referrer">
     <title>AyoBaca - Belajar Alfabet & Membaca Anak (ID & EN)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -78,6 +80,11 @@
         #traceCanvas {
             touch-action: none;
             cursor: crosshair;
+        }
+        /* Krayon yang sedang dipilih */
+        .brush-swatch[aria-pressed="true"] {
+            box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #334155;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -287,19 +294,6 @@
                             </button>
                         </div>
 
-                        <!-- Panel Khusus 2 Bunyi Huruf E Bahasa Indonesia (E Taling vs E Pepet) -->
-                        <div id="specialEVariantsPanel" class="hidden w-full bg-amber-100/90 border-2 border-amber-300 rounded-2xl p-3.5 text-left space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="font-kid font-bold text-xs sm:text-sm text-amber-950">
-                                    💡 Info Ilmiah KBBI: Huruf E punya 2 bunyi di Bahasa Indonesia!
-                                </span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <button onclick="speakEVariant('taling')" class="btn-3d bg-white hover:bg-amber-50 text-slate-800 p-2.5 rounded-xl border-2 border-amber-300 flex items-center gap-2.5 text-left">
-                                    <span class="text-2xl">🦎</span>
-                                    <div class="leading-tight">
-                                        <div class="font-kid font-bold text-sm text-sky-700">1. Bunyi É Terbuka (/e/)</div>
-                                        <div class="text-xs font-bold text-slate-600">Contoh: <strong>É-kor</strong>, <strong>Bé-bék</strong>, <strong>Mé-ja</strong></div>
                         <!-- Panel Khusus Variasi Bunyi Vokal Bahasa Indonesia (A, I, U, E, O) -->
                         <div id="specialEVariantsPanel" class="hidden w-full bg-amber-100/90 border-2 border-amber-300 rounded-2xl p-3.5 text-left space-y-2">
                             <div class="flex items-center justify-between">
@@ -446,11 +440,11 @@
 
                     <!-- Pilihan Warna Krayon Anak -->
                     <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border-2 border-slate-200">
-                        <button onclick="setBrushColor('#EF4444')" class="w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow ring-2 ring-red-300" aria-label="Merah"></button>
-                        <button onclick="setBrushColor('#3B82F6')" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow" aria-label="Biru"></button>
-                        <button onclick="setBrushColor('#10B981')" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow" aria-label="Hijau"></button>
-                        <button onclick="setBrushColor('#8B5CF6')" class="w-8 h-8 rounded-full bg-violet-500 border-2 border-white shadow" aria-label="Ungu"></button>
-                        <button onclick="setBrushColor('#F97316')" class="w-8 h-8 rounded-full bg-orange-500 border-2 border-white shadow" aria-label="Oranye"></button>
+                        <button onclick="setBrushColor('#EF4444')" data-color="#EF4444" aria-pressed="false" class="brush-swatch w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow" aria-label="Merah"></button>
+                        <button onclick="setBrushColor('#3B82F6')" data-color="#3B82F6" aria-pressed="true" class="brush-swatch w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow" aria-label="Biru"></button>
+                        <button onclick="setBrushColor('#10B981')" data-color="#10B981" aria-pressed="false" class="brush-swatch w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow" aria-label="Hijau"></button>
+                        <button onclick="setBrushColor('#8B5CF6')" data-color="#8B5CF6" aria-pressed="false" class="brush-swatch w-8 h-8 rounded-full bg-violet-500 border-2 border-white shadow" aria-label="Ungu"></button>
+                        <button onclick="setBrushColor('#F97316')" data-color="#F97316" aria-pressed="false" class="brush-swatch w-8 h-8 rounded-full bg-orange-500 border-2 border-white shadow" aria-label="Oranye"></button>
                     </div>
                 </div>
 
@@ -484,7 +478,7 @@
                             <span>🧽</span> <span id="btnTraceClear">Ulangi Tulisan</span>
                         </button>
 
-                        <button onclick="celebrateTracing()" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white py-3 px-4 rounded-2xl font-kid font-bold flex items-center justify-center gap-2">
+                        <button onclick="finishTracing()" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white py-3 px-4 rounded-2xl font-kid font-bold flex items-center justify-center gap-2">
                             <span>⭐</span> <span id="btnTraceDone">Selesai & Ambil Bintang!</span>
                         </button>
                     </div>
@@ -532,7 +526,7 @@
     <!-- ================= FOOTER RINGKAS ================= -->
     <footer class="max-w-5xl w-full mx-auto px-4 py-4 text-center text-xs sm:text-sm font-bold text-slate-500">
         <p>
-            🌟 <strong>AyoBaca</strong> — Aplikasi Edukasi Pra-Membaca Anak Usia &lt; 6 Tahun (Bahasa Indonesia &amp; Inggris) •
+            🌟 <strong>AyoBaca</strong> — Aplikasi Edukasi Pra-Membaca Anak Usia &lt; 6 Tahun (Bahasa Indonesia &amp; Inggris)
         </p>
     </footer>
 
@@ -590,7 +584,7 @@
                 <div class="flex items-center gap-2.5">
                     <span class="text-3xl">🔬</span>
                     <h3 class="font-kid font-bold text-xl sm:text-2xl text-violet-700">
-                        Acuan Ilmiah &amp; Cara Hosting Gratis
+                        Acuan Ilmiah
                     </h3>
                 </div>
                 <button onclick="toggleScienceModal(false)" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-600 font-bold text-xl flex items-center justify-center">✕</button>
@@ -1021,7 +1015,7 @@
                     word: "Vas",
                     wordNativeTTS: "vas",
                     wordFallbackTTS: "vas",
-                    syllables: "Bi - o - la",
+                    syllables: "Vas",
                     sentence: "Vas berisi bunga.",
                     emoji: "1f3fa"
                 },
@@ -1407,19 +1401,36 @@
         /********************************************************************
          * 3. STATE APLIKASI & KONFIGURASI SUARA NATURAL INDONESIA
          ********************************************************************/
+        // localStorage throws when site data is blocked; the app must still start.
+        function readStored(key, fallback) {
+            try {
+                const value = localStorage.getItem(key);
+                return value === null ? fallback : value;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function writeStored(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {}
+        }
+
         let currentLang = 'id'; // 'id' atau 'en'
         let currentMode = 'alphabet'; // 'alphabet', 'syllable', 'blend', 'trace', 'quiz'
         let currentLetterIndex = 0;
         let currentConsonantIndex = 0;
         let currentBlendIndex = 0;
-        let starsCount = parseInt(localStorage.getItem('AyoBaca_stars') || '0', 10);
+        let starsCount = parseInt(readStored('AyoBaca_stars', '0'), 10) || 0;
         let quizStreak = 0;
         let currentQuizAnswerIndex = 0;
+        let quizAnswered = false; // true after a correct tap, until the next question
+        let quizNextTimer = null;
         let autoReadInterval = null;
 
         // Pengaturan Mesin Suara
-        let userSpeechRate = parseFloat(localStorage.getItem('AyoBaca_rate') || '0.85');
-        let cloudAudioPlayer = new Audio();
+        let userSpeechRate = parseFloat(readStored('AyoBaca_rate', '0.85')) || 0.85;
 
         // State Kanvas Jejak Huruf
         let traceCanvas, traceCtx;
@@ -1427,6 +1438,18 @@
         let brushColor = '#3B82F6';
         let strokePointsCount = 0;
         let hasCelebratedCurrentTrace = false;
+
+        // Tracing progress = how much of the guide letter the strokes cover.
+        // Sample points inside the letter are marked when the brush passes over them.
+        const TRACE_SAMPLE_STEP = 6;      // px between sample points
+        const TRACE_BRUSH_RADIUS = 12;    // brush is 18px wide, plus a little tolerance
+        const TRACE_FULL_COVERAGE = 0.7;  // covering 70% of the letter shows as 100%
+        const TRACE_MIN_FOR_STAR = 50;    // the "Selesai" button needs at least 50% progress
+        let traceTargets = [];            // [{ x, y }] in CSS pixels
+        let traceTargetHit = new Uint8Array(0);
+        let traceHitCount = 0;
+        let traceProgress = 0;            // 0-100
+        let lastTracePos = null;
 
         /********************************************************************
          * 4. ENGINE AUDIO PROSEDURAL & NATURAL INDONESIAN SPEECH ENGINE
@@ -1492,7 +1515,7 @@
 
         function updateSpeechRate(val) {
             userSpeechRate = parseFloat(val);
-            localStorage.setItem('AyoBaca_rate', val);
+            writeStored('AyoBaca_rate', val);
             document.getElementById('speechRateLabel').textContent = `${userSpeechRate.toFixed(2)}x`;
         }
 
@@ -1522,34 +1545,109 @@
             status.className = failed ? "font-bold text-rose-900" : "font-bold text-emerald-900";
         }
 
+        // The browser can't tell the page why a sound failed (no internet, or Google answering
+        // 429 Too Many Requests), so this message covers both.
+        const SOUND_FAILED_MESSAGE = 'Suara gagal dimuat. Periksa koneksi internet, atau tunggu beberapa menit karena Google mungkin sedang membatasi jumlah suara.';
+        const TAP_TO_ENABLE_MESSAGE = 'Browser menahan suara. Ketuk layar sekali, lalu coba lagi.';
+
+        // Google forbids caching these sounds (no-store) and limits how many one network may
+        // request (429 Too Many Requests). To ask Google less often:
+        // - sounds that already loaded stay in a pool of <audio> elements and are replayed from memory;
+        // - during fast tapping, only the last tap is downloaded (at most one download per 0.6 s).
+        const SOUND_POOL_SIZE = 30;          // stays under the media player limit of mobile browsers
+        const MIN_DOWNLOAD_GAP_MS = 600;
+        const soundPool = [];                // { audio, url, lastUsed }
+        let currentSound = null;
+        let pendingSoundTimer = null;
+        let lastDownloadAt = -Infinity;
+
+        for (let i = 0; i < SOUND_POOL_SIZE; i++) {
+            const entry = { audio: new Audio(), url: '', lastUsed: 0 };
+            entry.audio.preload = 'auto';
+            entry.audio.addEventListener('playing', () => setSpeechStatus('TTS cloud Bahasa Indonesia aktif.'));
+            entry.audio.addEventListener('error', () => {
+                entry.url = ''; // forget the failed sound so the next tap downloads it again
+                if (entry === currentSound) setSpeechStatus(SOUND_FAILED_MESSAGE, true);
+            });
+            soundPool.push(entry);
+        }
+
+        // iOS Safari only lets an <audio> element play from a timer (quiz prompt, A-Z reading)
+        // after a tap has started it once. Touch every pooled element during the first tap.
+        function unlockSoundPool() {
+            soundPool.forEach((entry) => {
+                if (!entry.url) entry.audio.load();
+            });
+        }
+        ['touchend', 'click', 'keydown'].forEach((type) => {
+            document.addEventListener(type, unlockSoundPool, { once: true, capture: true });
+        });
+
+        function stopCurrentSound() {
+            clearTimeout(pendingSoundTimer);
+            pendingSoundTimer = null;
+            if (currentSound) currentSound.audio.pause();
+        }
+
+        // Load a new sound into the least recently used element that isn't playing.
+        function downloadSound(url) {
+            const entry = soundPool
+                .filter((e) => e !== currentSound)
+                .reduce((oldest, e) => (e.lastUsed < oldest.lastUsed ? e : oldest));
+            entry.url = url;
+            entry.audio.src = url;
+            lastDownloadAt = performance.now();
+            return entry;
+        }
+
+        function playPooledSound(entry) {
+            currentSound = entry;
+            entry.lastUsed = performance.now();
+            const audio = entry.audio;
+            // Setting src resets playbackRate to defaultPlaybackRate, so apply the speed every time.
+            audio.defaultPlaybackRate = userSpeechRate;
+            audio.playbackRate = userSpeechRate;
+            if (audio.readyState > 0) audio.currentTime = 0;
+
+            try {
+                const playPromise = audio.play();
+                if (playPromise) {
+                    playPromise.catch((err) => {
+                        // A newer sound interrupted this one; that is not a connection problem.
+                        if (!err || err.name === 'AbortError' || entry !== currentSound) return;
+                        // NotAllowedError: the browser blocks sound until the child taps the page.
+                        setSpeechStatus(err.name === 'NotAllowedError' ? TAP_TO_ENABLE_MESSAGE : SOUND_FAILED_MESSAGE, true);
+                    });
+                }
+            } catch (e) {
+                setSpeechStatus(SOUND_FAILED_MESSAGE, true);
+            }
+        }
+
         function speakCloudText(text, language = 'id') {
+            stopCurrentSound();
             if (!navigator.onLine) {
-                cloudAudioPlayer.pause();
                 setSpeechStatus('Koneksi internet diperlukan untuk memutar suara cloud.', true);
                 return;
             }
 
-            cloudAudioPlayer.pause();
-            cloudAudioPlayer.currentTime = 0;
-            cloudAudioPlayer.playbackRate = userSpeechRate;
-            cloudAudioPlayer.onerror = () => {
-                setSpeechStatus('Suara cloud gagal dimuat. Periksa koneksi internet lalu coba lagi.', true);
-            };
-            cloudAudioPlayer.onplaying = () => {
-                setSpeechStatus('TTS cloud Bahasa Indonesia aktif.');
-            };
-            cloudAudioPlayer.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${language}&client=tw-ob&q=${encodeURIComponent(text)}`;
-
-            try {
-                const playPromise = cloudAudioPlayer.play();
-                if (playPromise) {
-                    playPromise.catch(() => {
-                        setSpeechStatus('Suara cloud tidak dapat diputar. Periksa koneksi internet lalu coba lagi.', true);
-                    });
-                }
-            } catch (e) {
-                setSpeechStatus('Suara cloud tidak dapat diputar. Periksa koneksi internet lalu coba lagi.', true);
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${language}&client=tw-ob&q=${encodeURIComponent(text)}`;
+            const loaded = soundPool.find((e) => e.url === url && !e.audio.error);
+            if (loaded) {
+                playPooledSound(loaded);
+                return;
             }
+
+            const wait = lastDownloadAt + MIN_DOWNLOAD_GAP_MS - performance.now();
+            if (wait <= 0) {
+                playPooledSound(downloadSound(url));
+                return;
+            }
+            // Tapping fast: wait a moment, and only the latest tap gets downloaded.
+            pendingSoundTimer = setTimeout(() => {
+                pendingSoundTimer = null;
+                playPooledSound(downloadSound(url));
+            }, wait);
         }
 
         function speakIndonesianNatural(text) {
@@ -1562,7 +1660,7 @@
 
         function addStars(amount = 1) {
             starsCount += amount;
-            localStorage.setItem('AyoBaca_stars', starsCount.toString());
+            writeStored('AyoBaca_stars', starsCount.toString());
             const starEl = document.getElementById('starCountDisplay');
             starEl.textContent = starsCount;
             starEl.classList.remove('animate-pop');
@@ -1706,6 +1804,7 @@
          ********************************************************************/
         function switchMode(mode) {
             stopAutoRead();
+            clearTimeout(quizNextTimer);
             currentMode = mode;
             playSoundEffect('pop');
 
@@ -2059,14 +2158,23 @@
         /********************************************************************
          * 8. MODE 4: JEJAK HURUF MULTISENSORI (CANVAS VAKT)
          ********************************************************************/
+        // Canvas size in CSS pixels. The bitmap is scaled by devicePixelRatio so lines stay sharp.
+        let traceCssWidth = 0;
+        let traceCssHeight = 0;
+
         function initTraceCanvas() {
             traceCanvas = document.getElementById('traceCanvas');
             if (!traceCanvas) return;
             traceCtx = traceCanvas.getContext('2d');
 
             const rect = traceCanvas.getBoundingClientRect();
-            traceCanvas.width = rect.width || 380;
-            traceCanvas.height = rect.height || 260;
+            const dpr = window.devicePixelRatio || 1;
+            traceCssWidth = rect.width || 380;
+            traceCssHeight = rect.height || 260;
+            traceCanvas.width = Math.round(traceCssWidth * dpr);
+            traceCanvas.height = Math.round(traceCssHeight * dpr);
+            // Draw in CSS pixels so pointer positions map directly onto the canvas.
+            traceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             strokePointsCount = 0;
             hasCelebratedCurrentTrace = false;
@@ -2079,43 +2187,98 @@
             const item = ALPHABET_DATA[currentLetterIndex];
             const text = `${item.letter} ${item.letter.toLowerCase()}`;
 
-            traceCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
+            const w = traceCssWidth;
+            const h = traceCssHeight;
+            traceCtx.clearRect(0, 0, w, h);
 
             // Garis bantu buku tulis anak
             traceCtx.save();
             traceCtx.strokeStyle = '#E2E8F0';
             traceCtx.lineWidth = 2;
             traceCtx.setLineDash([6, 6]);
-            const midY = traceCanvas.height * 0.55;
-            const baseLineY = traceCanvas.height * 0.78;
+            const midY = h * 0.55;
+            const baseLineY = h * 0.78;
             traceCtx.beginPath();
             traceCtx.moveTo(20, midY);
-            traceCtx.lineTo(traceCanvas.width - 20, midY);
+            traceCtx.lineTo(w - 20, midY);
             traceCtx.moveTo(20, baseLineY);
-            traceCtx.lineTo(traceCanvas.width - 20, baseLineY);
+            traceCtx.lineTo(w - 20, baseLineY);
             traceCtx.stroke();
             traceCtx.restore();
 
             // Huruf panduan titik-titik
             traceCtx.save();
-            const fontSize = Math.min(traceCanvas.width * 0.42, 150);
+            const fontSize = Math.min(w * 0.42, 150);
             traceCtx.font = `700 ${fontSize}px 'Fredoka', sans-serif`;
             traceCtx.textAlign = 'center';
             traceCtx.textBaseline = 'middle';
 
             traceCtx.fillStyle = '#F1F5F9';
-            traceCtx.fillText(text, traceCanvas.width / 2, traceCanvas.height / 2);
+            traceCtx.fillText(text, w / 2, h / 2);
 
             traceCtx.strokeStyle = '#94A3B8';
             traceCtx.lineWidth = 3;
             traceCtx.setLineDash([7, 7]);
-            traceCtx.strokeText(text, traceCanvas.width / 2, traceCanvas.height / 2);
+            traceCtx.strokeText(text, w / 2, h / 2);
             traceCtx.restore();
+
+            buildTraceTargets(text, `700 ${fontSize}px 'Fredoka', sans-serif`);
+        }
+
+        // Draw the guide letter on a hidden canvas and keep a grid of points that fall inside it.
+        function buildTraceTargets(text, font) {
+            const w = Math.max(1, Math.round(traceCssWidth));
+            const h = Math.max(1, Math.round(traceCssHeight));
+            const mask = document.createElement('canvas');
+            mask.width = w;
+            mask.height = h;
+            const maskCtx = mask.getContext('2d');
+            maskCtx.font = font;
+            maskCtx.textAlign = 'center';
+            maskCtx.textBaseline = 'middle';
+            maskCtx.fillStyle = '#000';
+            maskCtx.fillText(text, traceCssWidth / 2, traceCssHeight / 2);
+            const pixels = maskCtx.getImageData(0, 0, w, h).data;
+
+            traceTargets = [];
+            for (let y = TRACE_SAMPLE_STEP / 2; y < h; y += TRACE_SAMPLE_STEP) {
+                for (let x = TRACE_SAMPLE_STEP / 2; x < w; x += TRACE_SAMPLE_STEP) {
+                    const alpha = pixels[(Math.floor(y) * w + Math.floor(x)) * 4 + 3];
+                    if (alpha > 128) traceTargets.push({ x, y });
+                }
+            }
+            traceTargetHit = new Uint8Array(traceTargets.length);
+            traceHitCount = 0;
+        }
+
+        // Mark letter points covered by the brush along the segment from -> to.
+        function markTraceCoverage(from, to) {
+            if (!traceTargets.length) return;
+            const r2 = TRACE_BRUSH_RADIUS * TRACE_BRUSH_RADIUS;
+            const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (TRACE_BRUSH_RADIUS / 2)));
+            for (let s = 0; s <= steps; s++) {
+                const px = from.x + (to.x - from.x) * (s / steps);
+                const py = from.y + (to.y - from.y) * (s / steps);
+                for (let i = 0; i < traceTargets.length; i++) {
+                    if (traceTargetHit[i]) continue;
+                    const dx = traceTargets[i].x - px;
+                    const dy = traceTargets[i].y - py;
+                    if (dx * dx + dy * dy <= r2) {
+                        traceTargetHit[i] = 1;
+                        traceHitCount++;
+                    }
+                }
+            }
+            const coverage = traceHitCount / traceTargets.length;
+            updateTraceProgressUI((coverage / TRACE_FULL_COVERAGE) * 100);
         }
 
         function setBrushColor(color) {
             brushColor = color;
             playSoundEffect('pop');
+            document.querySelectorAll('.brush-swatch').forEach((btn) => {
+                btn.setAttribute('aria-pressed', btn.dataset.color === color ? 'true' : 'false');
+            });
         }
 
         function clearTraceCanvas() {
@@ -2125,6 +2288,7 @@
 
         function updateTraceProgressUI(percent) {
             const clamped = Math.min(100, Math.round(percent));
+            traceProgress = clamped;
             const pctEl = document.getElementById('tracePercentText');
             const barEl = document.getElementById('traceProgressBar');
             if (pctEl) pctEl.textContent = `${clamped}%`;
@@ -2134,6 +2298,31 @@
                 hasCelebratedCurrentTrace = true;
                 celebrateTracing();
             }
+        }
+
+        // "Selesai & Ambil Bintang!" button: one star per letter, and only after real tracing.
+        function finishTracing() {
+            const isID = currentLang === 'id';
+            if (hasCelebratedCurrentTrace) {
+                playSoundEffect('pop');
+                if (isID) {
+                    speakIndonesianNatural("Bintangnya sudah kamu dapat. Ayo coba huruf lain!");
+                } else {
+                    speakText("You already got this star. Try another letter!", 'en');
+                }
+                return;
+            }
+            if (traceProgress < TRACE_MIN_FOR_STAR) {
+                playSoundEffect('gentleTryAgain');
+                if (isID) {
+                    speakIndonesianNatural("Ayo tebalkan hurufnya dulu sampai penuh, ya!");
+                } else {
+                    speakText("Trace the whole letter first!", 'en');
+                }
+                return;
+            }
+            hasCelebratedCurrentTrace = true;
+            celebrateTracing();
         }
 
         function celebrateTracing() {
@@ -2171,6 +2360,8 @@
                 const pos = getPos(e);
                 traceCtx.beginPath();
                 traceCtx.moveTo(pos.x, pos.y);
+                lastTracePos = pos;
+                markTraceCoverage(pos, pos);
             }
 
             function moveDraw(e) {
@@ -2198,7 +2389,8 @@
                 }
 
                 strokePointsCount++;
-                updateTraceProgressUI((strokePointsCount / 65) * 100);
+                markTraceCoverage(lastTracePos || pos, pos);
+                lastTracePos = pos;
             }
 
             function endDraw(e) {
@@ -2217,9 +2409,13 @@
             canvas.addEventListener('touchend', endDraw, { passive: false });
 
             window.addEventListener('resize', () => {
-                if (currentMode === 'trace') {
-                    initTraceCanvas();
-                }
+                if (currentMode !== 'trace' || !traceCanvas) return;
+                // Mobile browsers fire resize when the address bar shows or hides.
+                // Only start over when the canvas itself changed size, so the drawing is kept.
+                const rect = traceCanvas.getBoundingClientRect();
+                if (Math.round(rect.width) === Math.round(traceCssWidth) &&
+                    Math.round(rect.height) === Math.round(traceCssHeight)) return;
+                initTraceCanvas();
             });
         }
 
@@ -2360,6 +2556,8 @@
          ********************************************************************/
         function generateQuizQuestion() {
             const isID = currentLang === 'id';
+            clearTimeout(quizNextTimer);
+            quizAnswered = false;
             document.getElementById('quizStreakBadge').textContent = isID
                 ? `🔥 Skor Benar: ${quizStreak}`
                 : `🔥 Streak: ${quizStreak}`;
@@ -2373,7 +2571,12 @@
             while (optionsIndices.size < 3) {
                 optionsIndices.add(Math.floor(Math.random() * ALPHABET_DATA.length));
             }
-            const shuffledOptions = Array.from(optionsIndices).sort(() => Math.random() - 0.5);
+            // Fisher-Yates: every position is equally likely for the answer.
+            const shuffledOptions = Array.from(optionsIndices);
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
 
             const grid = document.getElementById('quizOptionsGrid');
             grid.innerHTML = '';
@@ -2412,10 +2615,13 @@
         }
 
         function checkQuizAnswer(selectedIndex, btnElement) {
+            // Ignore extra taps while the "correct" celebration is showing.
+            if (quizAnswered) return;
             const isID = currentLang === 'id';
             const feedbackEl = document.getElementById('quizFeedbackMessage');
 
             if (selectedIndex === currentQuizAnswerIndex) {
+                quizAnswered = true;
                 playSoundEffect('success');
                 triggerConfetti();
                 addStars(1);
@@ -2436,7 +2642,7 @@
                     speakText("Yay! You got it right!", 'en');
                 }
 
-                setTimeout(generateQuizQuestion, 2300);
+                quizNextTimer = setTimeout(generateQuizQuestion, 2300);
             } else {
                 playSoundEffect('gentleTryAgain');
                 btnElement.classList.add('opacity-50');
